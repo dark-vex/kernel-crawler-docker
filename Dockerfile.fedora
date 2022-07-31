@@ -13,5 +13,5 @@ ENV kernel ""
 WORKDIR /kernels
 
 # Old method this will query last 100 koji kernel build and search for the specific kernel
-#CMD koji download-build $(koji-tool builds kernel -l 100 |grep $kernel | cut -d '=' -f2) -a x86_64
+# CMD koji download-build $(koji-tool builds kernel -l 100 |grep $kernel | cut -d '=' -f2) -a x86_64
 CMD bash /app/fedora-downloader.sh
