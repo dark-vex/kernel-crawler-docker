@@ -1,0 +1,16 @@
+FROM fedora:36 as builder
+
+RUN yum install koji koji-tool -y
+
+WORKDIR /app
+
+COPY fedora-downloader.sh fedora-downloader.sh
+
+FROM builder as fedora-kernel
+
+ENV kernel ""
+
+WORKDIR /kernels
+
+#CMD koji download-build $(koji-tool builds kernel -l 100 |grep $kernel | cut -d '=' -f2) -a x86_64
+CMD bash /app/fedora-downloader.sh

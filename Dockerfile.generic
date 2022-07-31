@@ -1,0 +1,17 @@
+FROM python:3.7 AS builder
+
+RUN git clone https://github.com/falcosecurity/kernel-crawler.git
+
+#COPY kernel-crawler/ /app
+
+#WORKDIR /app
+
+WORKDIR /kernel-crawler
+
+RUN pip install -r requirements.txt
+
+FROM builder AS kernel-crawler
+
+ENTRYPOINT ["python", "__init__.py", "crawl"]
+
+CMD ["--help"]
