@@ -4,8 +4,8 @@ on:
   push:
     branches: [ main ]
     paths:
-      - Dockerfile.fedora
-      - fedora-downloader.sh
+      - Dockerfile.fedora123
+      - fedora-downloader.sh123
 
 jobs:
   build_test_image:
@@ -38,6 +38,7 @@ jobs:
         id: release
         uses: rymndhng/release-on-push-action@master
         with:
+          release_name: "Fedora Crawler <RELEASE_TAG>"
           bump_version_scheme: minor
           tag_prefix: v
 

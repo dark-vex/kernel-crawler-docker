@@ -1,0 +1,16 @@
+name: Build docker images
+description: Build Sysdig Agent kernel probes, included eBPF probes for supported kernels and distros
+
+runs:
+  using: "composite"
+
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Build image
+      id: test-image
+      uses: docker/build-push-action@v3
+      with:
+        file: $DOCKERFILE
+        tags: latest-test

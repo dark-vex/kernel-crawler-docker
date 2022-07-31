@@ -1,0 +1,28 @@
+name: Build and publish docker images
+description: Build Sysdig Agent kernel probes, included eBPF probes for supported kernels and distros
+
+runs:
+  using: "composite"
+
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Create release
+      id: release
+      uses: rymndhng/release-on-push-action@master
+      with:
+        release_name: "$RELEASE_NAME crawler <RELEASE_TAG>"
+        bump_version_scheme: minor
+        tag_prefix: v
+
+    - name: Build Docker image
+      uses: docker/build-push-action@v1
+      with:
+        dockerfile: Dockerfile.fedora
+        registry: ghcr.io
+        username: "dark-vex"
+        password: ${{ secrets.REPO_SCOPED_TOKEN }}
+        repository: dark-vex/kernel-crawler-$RELEASE_NAME
+        tags: latest, ${{ steps.release.outputs.version }}
+        push: true
