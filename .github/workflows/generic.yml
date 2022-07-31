@@ -6,33 +6,51 @@ on:
     paths:
       - Dockerfile.generic
 
-env:
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  DOCKERFILE: Dockerfile.generic
-  RELEASE_NAME: "generic"
-
 jobs:
-
   build_test_image:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Build test image
-        uses: ./.github/actions/build-test
+      - name: Build image
+        id: test-image
+        uses: docker/build-push-action@v3
+        with:
+          file: Dockerfile.generic
+          tags: latest-test
 
   build_release:
     runs-on: ubuntu-latest
     needs: build_test_image
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Build and publish image
-        uses: ./.github/actions/build-publish
+      - name: Create release
+        id: release
+        uses: rymndhng/release-on-push-action@master
+        with:
+          release_name: "Generic Crawler <RELEASE_TAG>"
+          bump_version_scheme: minor
+          tag_prefix: gv
+
+      - name: 'Build Docker Image'
+        uses: docker/build-push-action@v1
+        with:
+          dockerfile: Dockerfile.generic
+          registry: ghcr.io
+          username: "dark-vex"
+          password: ${{ secrets.REPO_SCOPED_TOKEN }}
+          repository: dark-vex/kernel-crawler-generic
+          tags: latest, ${{ steps.release.outputs.tag_name }}
+          push: true
 
     outputs:
       version: ${{ steps.release.outputs.version }}

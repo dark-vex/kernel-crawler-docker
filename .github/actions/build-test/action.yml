@@ -12,5 +12,7 @@ runs:
       id: test-image
       uses: docker/build-push-action@v3
       with:
-        file: $DOCKERFILE
+        file: $FILE
         tags: latest-test
+      env:
+       FILE: ${{ env.DOCKERFILE }}

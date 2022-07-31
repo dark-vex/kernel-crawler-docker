@@ -7,32 +7,51 @@ on:
       - Dockerfile.fedora
       - fedora-downloader.sh
 
-env:
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  DOCKERFILE: Dockerfile.fedora
-  RELEASE_NAME: "fedora"
-
 jobs:
   build_test_image:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Build test image
-        uses: ./.github/actions/build-test
+      - name: Build image
+        id: test-image
+        uses: docker/build-push-action@v3
+        with:
+          file: Dockerfile.fedora
+          tags: latest-test
 
   build_release:
     runs-on: ubuntu-latest
     needs: build_test_image
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Build and publish image
-        uses: ./.github/actions/build-publish
+      - name: Create release
+        id: release
+        uses: rymndhng/release-on-push-action@master
+        with:
+          release_name: "Fedora Crawler <RELEASE_TAG>"
+          bump_version_scheme: minor
+          tag_prefix: fv
+
+      - name: 'Build Docker Image'
+        uses: docker/build-push-action@v1
+        with:
+          dockerfile: Dockerfile.fedora
+          registry: ghcr.io
+          username: "dark-vex"
+          password: ${{ secrets.REPO_SCOPED_TOKEN }}
+          repository: dark-vex/kernel-crawler-fedora
+          tags: latest, ${{ steps.release.outputs.tag_name }}
+          push: true
 
     outputs:
       version: ${{ steps.release.outputs.version }}
