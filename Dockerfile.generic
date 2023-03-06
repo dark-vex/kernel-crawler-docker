@@ -11,3 +11,4 @@ FROM builder AS kernel-crawler
 ENTRYPOINT ["python", "__init__.py", "crawl"]
 
 CMD ["--help"]
+
